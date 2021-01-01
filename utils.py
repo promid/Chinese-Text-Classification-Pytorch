@@ -21,10 +21,11 @@ def build_vocab(file_path, tokenizer, max_size, min_freq):
                 continue
             content = lin.split('\t')[0]
             for word in tokenizer(content):
-                vocab_dic[word] = vocab_dic.get(word, 0) + 1
-        vocab_list = sorted([_ for _ in vocab_dic.items() if _[1] >= min_freq], key=lambda x: x[1], reverse=True)[:max_size]
-        vocab_dic = {word_count[0]: idx for idx, word_count in enumerate(vocab_list)}
+                vocab_dic[word] = vocab_dic.get(word, 0) + 1 # key为字/词，value为该字/词出现的次数
+        vocab_list = sorted([_ for _ in vocab_dic.items() if _[1] >= min_freq], key=lambda x: x[1], reverse=True)[:max_size] #[("字词m", 1000),("字词n", 888)]
+        vocab_dic = {word_count[0]: idx for idx, word_count in enumerate(vocab_list)} #[(0,("字词m", 1000)),(1,("字词n", 888))]
         vocab_dic.update({UNK: len(vocab_dic), PAD: len(vocab_dic) + 1})
+    print("vocab_dic: %s" % vocab_dic)
     return vocab_dic
 
 
@@ -127,7 +128,6 @@ def get_time_dif(start_time):
 
 if __name__ == "__main__":
     '''提取预训练词向量'''
-    # 下面的目录、文件名按需更改。
     train_dir = "./THUCNews/data/train.txt"
     vocab_dir = "./THUCNews/data/vocab.pkl"
     pretrain_dir = "./THUCNews/data/sgns.sogou.char"
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         word_to_id = pkl.load(open(vocab_dir, 'rb'))
     else:
         # tokenizer = lambda x: x.split(' ')  # 以词为单位构建词表(数据集中词之间以空格隔开)
-        tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表
+        tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表，返回数据集中的每一个字
         word_to_id = build_vocab(train_dir, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=1)
         pkl.dump(word_to_id, open(vocab_dir, 'wb'))
 
